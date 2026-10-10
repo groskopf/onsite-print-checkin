@@ -1,0 +1,27 @@
+{
+    "name": "Onsite Print Attendee - React",
+    "build": {
+        "dockerfile": "Dockerfile"
+    },
+    "remoteUser": "node",
+    "forwardPorts": [
+        5173
+    ],
+    "portsAttributes": {
+        "5173": {
+            "label": "React development server",
+            "onAutoForward": "notify"
+        }
+    },
+    "postCreateCommand": "npm ci",
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "dbaeumer.vscode-eslint"
+            ],
+            "settings": {
+                "editor.tabSize": 2
+            }
+        }
+    }
+}
