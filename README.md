@@ -85,6 +85,13 @@ serves only built assets; it does not run Vite. To publish it, set `IMAGE_TAG` i
 permission, and run `bash docker-push.sh`. `GHCR_USERNAME` defaults to `groskopf`.
 The image is `ghcr.io/groskopf/onsite-print-checkin:<IMAGE_TAG>`.
 
+Tags must be `major.minor.patch` without leading zeros. The script publishes
+the current version and increments its patch in `.env` only after success.
+Failures leave the version unchanged. Commit the updated `.env`; it contains
+the next release, not a published tag. Use the printed published tag for
+deployment. Do not publish concurrently or from stale checkouts: increments
+do not prevent overwrites caused by stale versions or interrupted-push retries.
+
 See the server repo's README for image-only deployment and HTTPS setup. Phone
 camera testing requires HTTPS even during development on a LAN.
 
