@@ -34,6 +34,12 @@ For phone testing, use an HTTPS deployment or a trusted HTTPS development endpoi
 
 The first container setup requires internet access to download the image and dependencies.
 
+This repository has its own Node.js environment; backend Python development uses
+the separate container in `../onsite-print-backend`. The API proxy inside this
+container targets `http://host.docker.internal:8080`, reaching the full stack
+started on the host from `../onsite-print-server`. Override `API_PROXY_TARGET`
+when using a different API server. Reopening does not start the full stack.
+
 The container builds from `.devcontainer/Dockerfile`, which uses Node.js 24 with npm and installs Git, curl, and CA certificates. App dependencies install separately with `npm ci` after the workspace is mounted.
 
 After changing the Dockerfile or container configuration, run **Dev Containers: Rebuild and Reopen in Container** from the Command Palette.

@@ -1,9 +1,13 @@
 {
-    "name": "Onsite Print Attendee - React",
+    "name": "Onsite Print Checkin - React",
     "build": {
         "dockerfile": "Dockerfile"
     },
     "remoteUser": "node",
+    "runArgs": ["--add-host=host.docker.internal:host-gateway"],
+    "remoteEnv": {
+        "API_PROXY_TARGET": "http://host.docker.internal:8080"
+    },
     "forwardPorts": [
         5173
     ],
