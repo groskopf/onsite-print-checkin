@@ -1,18 +1,39 @@
 # onsite-print-checkin
 
-A mobile-friendly barcode scanner using React, JavaScript, Vite, and ZXing.
+A mobile-friendly check-in station using React, JavaScript, Vite, and jsQR.
+Scanning an attendee's pass welcomes them and prints their name tag on the
+event's printer.
 
-## Scanning
+## Check-in flow
 
-Open the app on your phone, tap **Start scanning**, and allow camera access.
-The scanner prefers the rear camera and reads QR codes and common one-dimensional
-barcodes. After a successful scan, the camera stops and the decoded value appears.
-Tap **Scan next** to scan another code, or **Stop scanning** to release the camera.
-The camera also stops when the page is hidden.
+1. Enter the event code. Spaces, dashes, and lowercase letters are accepted.
+2. Choose one of the printers booked for the event. Printers without a booking
+   for today are shown but cannot be chosen.
+3. The scanning page shows the event and printer at the top. Allow camera
+   access and hold an attendee's pass QR code in the frame.
 
-Codes are displayed as plain text, never automatically opened as links. Camera
-images are decoded locally, not uploaded. This page does not perform backend
-check-in or attendee validation.
+Each scanned pass looks up the attendee and opens a welcome pop-up with their
+name and company. **Print** sends a name tag (`layout_2`: name on line 1,
+company on line 3) to the chosen printer's active booking; **Cancel** closes
+the pop-up without printing. A pass that is unknown, belongs to another event,
+or is not a check-in pass shows an error pop-up instead.
+
+Nothing prints without pressing **Print**. A pass held in front of the camera
+does not reopen the pop-up; it counts as a new scan after it has been out of
+view for 1.5 seconds. Use **Change printer** to switch printer. **Log out**
+asks for confirmation, then forgets the event on this device and returns to
+the event code screen.
+
+The event and printer are remembered in this browser's local storage, so a
+reload returns to the scanner. The printer choice is shared with the admin
+check-in page on the same origin.
+
+A pass QR code contains the 64-character attendee code. An attendee pass URL
+(`/attendee/{EVENT_CODE}/{attendee_code}`) is also accepted if it belongs to
+the selected event. Other codes are rejected and never opened as links.
+
+Camera images are decoded locally with jsQR, not uploaded. The camera prefers
+the rear camera and stops when the page is hidden.
 
 Camera access requires **HTTPS** (or localhost for desktop development).
 Opening a plain HTTP LAN address on a phone will not work for camera access.
@@ -30,9 +51,23 @@ For phone testing, use an HTTPS deployment or a trusted HTTPS development endpoi
 	npm run dev
 	```
 
-6. Open <http://localhost:5173/checkin/> to see the scanner. VS Code forwards this port from the container.
+6. Open <http://localhost:5173/checkin/> to see the check-in station. VS Code forwards this port from the container.
 
 The first container setup requires internet access to download the image and dependencies.
+
+Copilot session files are shared from the host's `~/.copilot/session-state` into
+the container user's home; other Copilot configuration and credentials are not
+mounted. The host directory must exist before reopening (create it as your
+normal user with `mkdir -p ~/.copilot/session-state` if necessary).
+Only use trusted code: shared session files may contain sensitive conversations
+and are writable from the container.
+The container and VS Code run as `node`, with `updateRemoteUserUID` enabled to
+match your host UID/GID on Linux. Avoid `sudo` for npm, editing, or Copilot
+commands so new files remain host-owned. Compare `id` inside and outside the
+container after **Dev Containers: Rebuild and Reopen in Container**.
+Sharing history does not transfer a running chat or authentication, and session
+discovery depends on the chat provider. Use its history/resume UI if supported;
+do not resume the same session concurrently on the host and in a container.
 
 This repository has its own Node.js environment; backend Python development uses
 the separate container in `../onsite-print-backend`. The API proxy inside this
@@ -46,7 +81,8 @@ After changing the Dockerfile or container configuration, run **Dev Containers: 
 
 ## Make your first change
 
-Edit `src/App.jsx` to change the scanner. Saving the file updates the browser automatically.
+Edit `src/App.jsx` to change the check-in screens. Saving the file updates the browser automatically.
+`src/checkin-api.js` holds API calls, scan parsing, and stored choices.
 `src/main.jsx` mounts the React app, and `src/index.css` controls its appearance.
 
 ## Commands
@@ -54,6 +90,7 @@ Edit `src/App.jsx` to change the scanner. Saving the file updates the browser au
 ```sh
 npm run dev      # Start the development server
 npm run lint     # Check JavaScript and React code
+npm test         # Run unit tests for API and scan helpers
 npm run build    # Create a production build in dist/
 npm run preview  # Preview the production build
 ```
