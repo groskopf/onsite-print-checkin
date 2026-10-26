@@ -1,9 +1,18 @@
 {
-    "name": "Onsite Print Attendee - React",
+    "name": "Onsite Print Checkin - React",
     "build": {
         "dockerfile": "Dockerfile"
     },
     "remoteUser": "node",
+    "containerUser": "node",
+    "updateRemoteUserUID": true,
+    "mounts": [
+        "source=${localEnv:HOME}/.copilot/session-state,target=/home/node/.copilot/session-state,type=bind"
+    ],
+    "runArgs": ["--add-host=host.docker.internal:host-gateway"],
+    "remoteEnv": {
+        "API_PROXY_TARGET": "http://host.docker.internal:8080"
+    },
     "forwardPorts": [
         5173
     ],

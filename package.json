@@ -10,11 +10,11 @@
         "dev": "vite",
         "build": "vite build",
         "preview": "vite preview",
-        "lint": "eslint ."
+        "lint": "eslint .",
+        "test": "node --test tests/checkin-api.test.js"
     },
     "dependencies": {
-        "@zxing/browser": "^0.1.5",
-        "@zxing/library": "^0.21.3",
+        "jsqr": "^1.4.0",
         "react": "^19.2.0",
         "react-dom": "^19.2.0"
     },
