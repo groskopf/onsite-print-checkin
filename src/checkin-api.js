@@ -5,6 +5,12 @@ export function normalizeEventCode(value) {
   return value.replace(/[\s-]/g, '').toUpperCase()
 }
 
+// Facilitators share /checkin/?event=CODE so desks can skip typing the code.
+export function linkedEventCode(search) {
+  const value = new URLSearchParams(search).get('event')
+  return value == null ? null : normalizeEventCode(value)
+}
+
 const isText = (value) => typeof value === 'string' && value.trim() !== ''
 const isOptionalText = (value) => value == null || typeof value === 'string'
 

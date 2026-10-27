@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import jsQR from 'jsqr'
 import {
-  EVENT_CODE_PATTERN, activeBooking, createNametag, eventLocation, formatDateRange, fullName, loadAttendee,
-  loadEvent, loadEventPrinters, normalizeEventCode, parseScan, printerName, readStoredEvent, readStoredPrinter,
+  EVENT_CODE_PATTERN, activeBooking, createNametag, eventLocation, formatDateRange, fullName, linkedEventCode,
+  loadAttendee, loadEvent, loadEventPrinters, normalizeEventCode, parseScan, printerName, readStoredEvent, readStoredPrinter,
   storeEvent, storePrinter,
 } from './checkin-api.js'
 
@@ -72,7 +72,7 @@ function EventEntry({ initialError, onOpen }) {
 
   return (
     <section className="card" aria-labelledby="event-entry-heading">
-      <p className="eyebrow">Check-in</p>
+      <p className="eyebrow">Check-in scanner</p>
       <h1 id="event-entry-heading">Open your event</h1>
       <p>Enter the event code you received from Onsite Print.</p>
       <form className="event-form" onSubmit={submit} noValidate>
@@ -459,10 +459,19 @@ function LogoutDialog({ event, printer, onConfirm, onCancel }) {
   )
 }
 
+function readInitialEvent() {
+  const linked = linkedEventCode(window.location.search)
+  if (linked === null) return { code: readStoredEvent(), error: '' }
+  return EVENT_CODE_PATTERN.test(linked)
+    ? { code: linked, error: '' }
+    : { code: null, error: 'The check-in link has an invalid event code. Enter the event code instead.' }
+}
+
 export default function App() {
-  const [storedEvent] = useState(() => readStoredEvent())
+  const [initialEvent] = useState(readInitialEvent)
+  const storedEvent = initialEvent.code
   const [event, setEvent] = useState(null)
-  const [eventError, setEventError] = useState('')
+  const [eventError, setEventError] = useState(initialEvent.error)
   const [restoring, setRestoring] = useState(() => Boolean(storedEvent))
   const [printers, setPrinters] = useState(null)
   const [printerError, setPrinterError] = useState('')
@@ -470,6 +479,14 @@ export default function App() {
   const [choosingPrinter, setChoosingPrinter] = useState(false)
   const [attempt, setAttempt] = useState(0)
   const [confirmingLogout, setConfirmingLogout] = useState(false)
+
+  useEffect(() => {
+    // Drop the code from the address so reloading after logout does not reopen the linked event.
+    const url = new URL(window.location.href)
+    if (!url.searchParams.has('event')) return
+    url.searchParams.delete('event')
+    window.history.replaceState(window.history.state, '', `${url.pathname}${url.search}${url.hash}`)
+  }, [])
 
   useEffect(() => {
     if (!storedEvent) return undefined
