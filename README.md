@@ -7,6 +7,8 @@ event's printer.
 ## Check-in flow
 
 1. Enter the event code. Spaces, dashes, and lowercase letters are accepted.
+   A link such as `/checkin/?event=ABCDEFGH234567AB` (shown with a QR code on
+   the event app's Check-in page) opens the event directly and skips this step.
 2. Choose one of the printers booked for the event. Printers without a booking
    for today are shown but cannot be chosen.
 3. The scanning page shows the event and printer at the top. Allow camera

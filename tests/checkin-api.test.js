@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import {
-  activeBooking, createNametag, eventLocation, formatDateRange, loadAttendee, loadEventPrinters,
+  activeBooking, createNametag, eventLocation, formatDateRange, linkedEventCode, loadAttendee, loadEventPrinters,
   nametagData, normalizeEventCode, parseScan,
 } from '../src/checkin-api.js'
 
@@ -25,6 +25,13 @@ test('normalizes event codes and parses scanned passes', () => {
   assert.match(parseScan(`https://x.dk/attendee/AAAAAAAAAAAAAAAA/${CODE}`, EVENT).error, /another event/)
   assert.match(parseScan('https://example.com', EVENT).error, /not an Onsite Print/)
   assert.match(parseScan('hello', EVENT).error, /not an Onsite Print/)
+})
+
+test('reads the preselected event from a check-in link', () => {
+  assert.equal(linkedEventCode(`?event=${EVENT.toLowerCase()}`), EVENT)
+  assert.equal(linkedEventCode('?event=LW6M-OVT3-IZAA-BDXE'), EVENT)
+  assert.equal(linkedEventCode(''), null)
+  assert.equal(linkedEventCode('?event='), '')
 })
 
 test('loads the event printers and finds the booking for today', async () => {
